@@ -2,6 +2,10 @@ import numpy as np
 import utils
 from random import choices
 from collections import deque
+import matplotlib.pyplot as plt
+from PIL import Image
+import os
+
 
 NORTH = 0
 EAST = 1
@@ -12,7 +16,7 @@ class ContradictionError(Exception):
     pass
 
 class StageWFC():
-    
+
     def __init__(self, tiles, start_block='X'):
         """
         Initializes an empty StageWFC object. Must add stages to learn constraints
@@ -99,20 +103,6 @@ class StageWFC():
             return -np.sum(probs * np.log(probs))
         
         
-        # def _weighted_sample(i,j):
-        #     dom = domain[i,j]
-        #     weights = np.zeros(n_tiles)
-        #     for t in np.where(dom)[0]:
-        #         weights[t] = np.sum(self.pattern_count[t])
-        #     mask = dom & (weights > 0)
-        #     if not mask.any():
-        #         mask = dom
-        #         weights = np.ones(n_tiles)
-            
-        #     candidates = list(np.where(mask)[0])
-        #     w = weights[mask]
-        #     return choices(candidates, weights=w, k=1)[0]
-        
         def _weighted_sample(i,j):
             dom = domain[i,j]
             weights = np.zeros(n_tiles)
@@ -165,3 +155,44 @@ class StageWFC():
             for j in range(w):
                 level[i,j] = self.convert_back_tiles[np.where(domain[i,j])[0][0]]
         return level
+    
+    def save_level(self, stage, tile_dict, out_path='output/level', tile_size = (16,16)):
+        # level is an array of ints at this point
+        # self.tiles is a dict{int: "X"} where "X" represents a block in text form
+        # tile_dict is a dict {"X": PATH} where PATH is a string to the photo of said block
+        h,w = stage.shape
+        th, tw = tile_size
+        
+        level_img = Image.new("RGBA", (w*tw, h*tw), (0,0,0,0))
+        
+        for i in range(h):
+            for j in range(w):
+                symbol = stage[i,j]
+                img_path = tile_dict.get(symbol)
+                if img_path:
+                    try:
+                        tile = Image.open(img_path).convert('RGBA')
+                    except Exception:
+                        print("HHHUUUHHHHHH")
+                        tile = Image.new("RGBA", (th,tw), (0,0,0,0))
+                    
+                else:
+                    tile = Image.new("RGBA", (th,tw), (0,0,0,0))
+            
+                if tile.size != (th,tw):
+                    tile = tile.resize((th,tw), Image.NEAREST)
+                
+                level_img.paste(tile, (j*tw, i*th), tile)
+                
+        
+        directory = os.path.dirname(out_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        
+        base, ext = os.path.splitext(out_path)
+        if ext.lower() != '.png':
+            out_file = f'{base}.png'
+        else: out_file = out_path
+        level_img.save(out_file)
+        return level_img
+        

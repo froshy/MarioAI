@@ -2,3 +2,4 @@
 *.jpg
 *.ipynb
 test.py
+/__pycache__
