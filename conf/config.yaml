@@ -1,0 +1,31 @@
+# configs / default.yaml
+
+### GLOBAL ###
+
+seed: 42
+env_name: SuperMarioBros-v0
+log_dir: logs/
+checkpoint_dir: checkpoints/
+
+### Environment & Observation ###
+
+stack_size: 4
+
+### Replay Buffer ###
+
+buffer_size: 100000
+start_learning: 1000
+
+### Training ###
+
+batch_size: 32
+lr: 1e-4
+gamma: 0.99
+update_every: 4
+target_update_freq: 4
+max_frames: 10000000
+
+### Hydra ###
+hydra:
+  run:
+    dir: .

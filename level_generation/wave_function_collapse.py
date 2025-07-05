@@ -173,7 +173,6 @@ class StageWFC():
                     try:
                         tile = Image.open(img_path).convert('RGBA')
                     except Exception:
-                        print("HHHUUUHHHHHH")
                         tile = Image.new("RGBA", (th,tw), (0,0,0,0))
                     
                 else:
